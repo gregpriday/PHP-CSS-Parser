@@ -146,6 +146,25 @@ class CSSParser {
 		return new CSSString($sResult);
 	}
 	
+	private function parseOriginVariable() {
+		$this->consume('$');
+		$sValue = $this->parseIdentifier(false);
+		
+		return new CSSOriginVariable($sValue);
+	}
+	
+	private function parseOriginFunction() {
+		$this->consume('@');
+		
+		// Get the function name
+		$fName = $this->parseIdentifier(false);
+		$this->consume('(');
+		$result = new CSSOriginFunction($fName, $this->parseValue(array('=', ',')));
+		$this->consume(')');
+		return $result;
+		
+	}
+	
 	private function parseCharacter($bIsForIdentifier) {
 		if($this->peek() === '\\') {
 			$this->consume('\\');
@@ -176,7 +195,8 @@ class CSSParser {
 			return iconv('utf-32le', $this->sCharset, $sUtf32);
 		}
 		if($bIsForIdentifier) {
-			if(preg_match('/[a-zA-Z0-9]|-|_/u', $this->peek()) === 1) {
+			// We modified this to allow $section->name variables inside CSS functions
+			if(preg_match('/[a-zA-Z0-9\>\$]|-|_/u', $this->peek()) === 1) {
 				return $this->consume(1);
 			} else if(ord($this->peek()) > 0xa1) {
 				return $this->consume(1);
@@ -291,6 +311,11 @@ class CSSParser {
 			$oValue = $this->parseURLValue();
 		} else if($this->comes("'") || $this->comes('"')){
 			$oValue = $this->parseStringValue();
+		} else if($this->comes('$')) {
+			// This is part of the custom origin variable parsing
+			$oValue = $this->parseOriginVariable();
+		} else if($this->comes('@')) {
+			$oValue = $this->parseOriginFunction();
 		} else {
 			$oValue = $this->parseIdentifier();
 		}
@@ -462,4 +487,3 @@ class CSSParser {
 		return mb_substr($this->sText, $this->iCurrentPosition, -1, $this->sCharset);
 	}
 }
-

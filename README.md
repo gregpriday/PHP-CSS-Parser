@@ -3,6 +3,18 @@ PHP CSS Parser
 
 A Parser for CSS Files written in PHP. Allows extraction of CSS files into a data structure, manipulation of said structure and output as (optimized) CSS.
 
+## Modifications
+
+This version of PHP CSS Parser has been modified to work with the origin framework.
+
+### CSS Origin Function
+
+Added an Origin Function type, based on a standard CSS function. It's prefixed by @
+
+### Origin Variable
+
+Variables entered into CSS. Prefixed with $
+
 ## Usage
 
 ### Installation

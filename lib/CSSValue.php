@@ -108,3 +108,36 @@ class CSSURL extends CSSPrimitiveValue {
 	}
 }
 
+/**
+ * An Origin framework style variable.
+ */
+class CSSOriginVariable extends CSSPrimitiveValue {
+	private $v;
+	
+	/**
+	 * @var string The proccessed variable
+	 */
+	private $pr;
+	
+	public function __construct($v){
+		$this->v = $v;
+		$this->p = null;
+	}
+	
+	public function getVar(){
+		return $this->v;
+	}
+	
+	/**
+	 * Substitutes values from the values array.
+	 *
+	 * @para array $values The values
+	 */
+	public function process($values){
+		
+	}
+	
+	public function __toString() {
+		return $this->p;
+	}
+}

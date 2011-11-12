@@ -149,27 +149,37 @@ class CSSDocument extends CSSList {
 		return $aResult;
 	}
   
-  /**
-   * Expands all shorthand properties to their long value
-   */ 
-  public function expandShorthands()
-  {
-    foreach($this->getAllDeclarationBlocks() as $oDeclaration)
-    {
-      $oDeclaration->expandShorthands();
-    }
-  }
+	/**
+	* Expands all shorthand properties to their long value
+	*/ 
+	public function expandShorthands() {
+		foreach($this->getAllDeclarationBlocks() as $oDeclaration) {
+			$oDeclaration->expandShorthands();
+		}
+	}
 
-  /*
-   * Create shorthands properties whenever possible
-   */
-  public function createShorthands()
-  {
-    foreach($this->getAllDeclarationBlocks() as $oDeclaration)
-    {
-      $oDeclaration->createShorthands();
-    }
-  }
+	/*
+	* Create shorthands properties whenever possible
+	*/
+	public function createShorthands() {
+		foreach($this->getAllDeclarationBlocks() as $oDeclaration) {
+			$oDeclaration->createShorthands();
+		}
+	}
+	
+	/**
+	 * Inserts values and executes functions defined by the executor.
+	 */
+	public function originProcess($values, $executor){
+		
+	}
+	
+	/**
+	 * @return array() Which origin variables affect which rules
+	 */
+	public function originGetRules(){
+		
+	}
 }
 
 /**
