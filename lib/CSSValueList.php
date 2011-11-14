@@ -120,7 +120,9 @@ class CSSOriginFunction extends CSSValueList {
 		
 		$args = array();
 		foreach($this->aComponents as $component){
-			$args[] = (string) $component;
+			$string = (string) $component;
+			if($component instanceof CSSString) $string = trim($string, '"');
+			$args[] = $string;
 		}
 		
 		$this->output = call_user_func_array(array($executor, $this->function), $args);
