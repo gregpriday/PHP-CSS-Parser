@@ -69,7 +69,32 @@ abstract class CSSList {
 			$aResult[] = $oElement;
 		}
 	}
-
+	
+	protected function allOriginFunctions($oElement, &$aResult, $sSearchString = null, $bSearchInFunctionArguments = true) {
+		if($oElement instanceof CSSList) {
+			foreach($oElement->getContents() as $oContent) {
+				$this->allOriginFunctions($oContent, $aResult, $sSearchString, $bSearchInFunctionArguments);
+			}
+		} else if($oElement instanceof CSSRuleSet) {
+			foreach($oElement->getRules($sSearchString) as $oRule) {
+				$this->allOriginFunctions($oRule, $aResult, $sSearchString, $bSearchInFunctionArguments);
+			}
+		} else if($oElement instanceof CSSRule) {
+			$this->allOriginFunctions($oElement->getValue(), $aResult, $sSearchString, $bSearchInFunctionArguments);
+		} else if($oElement instanceof CSSValueList) {
+			if($bSearchInFunctionArguments || !($oElement instanceof CSSFunction)) {
+				foreach($oElement->getListComponents() as $mComponent) {
+					$this->allOriginFunctions($mComponent, $aResult, $sSearchString, $bSearchInFunctionArguments);
+				}
+			}
+		}
+		
+		// We want origin functions
+		if($oElement instanceof CSSOriginFunction){
+			$aResult[] = $oElement;
+		}
+	}
+	
 	protected function allSelectors(&$aResult, $sSpecificitySearch = null) {
 		foreach($this->getAllDeclarationBlocks() as $oBlock) {
 			foreach($oBlock->getSelectors() as $oSelector) {
@@ -133,6 +158,19 @@ class CSSDocument extends CSSList {
 		$this->allValues($mElement, $aResult, $sSearchString, $bSearchInFunctionArguments);
 		return $aResult;
 	}
+	
+	public function getAllOriginFunctions($mElement = null, $bSearchInFunctionArguments = true){
+		$sSearchString = null;
+		if($mElement === null) {
+			$mElement = $this;
+		} else if(is_string($mElement)) {
+			$sSearchString = $mElement;
+			$mElement = $this;
+		}
+		$aResult = array();
+		$this->allOriginFunctions($mElement, $aResult, $sSearchString, $bSearchInFunctionArguments);
+		return $aResult;
+	}
 
 	/**
 	* Returns all CSSSelector objects found recursively in the tree.
@@ -168,17 +206,71 @@ class CSSDocument extends CSSList {
 	}
 	
 	/**
+	 * Creates additional CSS rules to support all browsers
+	 */
+	public function createCss3BrowserSupport() {
+		
+	}
+	
+	/**
 	 * Inserts values and executes functions defined by the executor.
 	 */
 	public function originProcess($values, $executor){
+		// Start by swapping out variables for their known values
+		foreach($this->getAllValues(null, true) as $value){
+			if($value instanceof CSSOriginVariable){
+				$value->substitute($values);
+			}
+		}
 		
+		// Now we need to process all the functions
+		foreach($this->getAllOriginFunctions() as $function){
+			$function->execute($executor);
+		}
+	}
+	
+	/**
+	 * Sets the Javascript mode on all contained Origin objects
+	 */
+	public function originSetJSMode($mode){
+		foreach($this->getAllValues(null, true) as $value)
+			if($value instanceof CSSOriginVariable) $value->setJSMode($mode);
+		foreach($this->getAllOriginFunctions() as $function) $function->setJSMode($mode);
+	}
+	
+	/**
+	 * 
+	 */
+	public function originJavascriptFunction(){
+		$this->originSetJSMode(true);
+		$js = 'var originGenerateCss = function(v, e){ return "'.$this->__toString().'" };';
+		$this->originSetJSMode(false);
+		
+		return $js;
 	}
 	
 	/**
 	 * @return array() Which origin variables affect which rules
 	 */
-	public function originGetRules(){
+	public function originGetEffects(){
+		// We need to find out which deceleration blocks are affected by which origin variables
+		$effects = array();
+		foreach($this->getAllDeclarationBlocks() as $block){
+			$selectors = array();
+			foreach($block->getSelectors() as $s){
+				$selectors[] = $s->getSelector();
+			}
+			
+			foreach($this->getAllValues($block, true) as $value){
+				if($value instanceof CSSOriginVariable){
+					list($s, $n) = explode('->', $value->getVariable());
+					if(empty($effects[$s][$n])) @$effects[$s][$n] = array();
+					$effects[$s][$n] = array_unique(array_merge($effects[$s][$n], $selectors));
+				}
+			}
+		}
 		
+		return $effects;
 	}
 }
 

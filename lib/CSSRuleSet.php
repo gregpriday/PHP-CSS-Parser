@@ -11,8 +11,10 @@ abstract class CSSRuleSet {
 		$this->aRules = array();
 	}
 	
-	public function addRule(CSSRule $oRule) {
-		$this->aRules[$oRule->getRule()] = $oRule;
+	public function addRule($oRule) {
+		//$this->aRules[$oRule->getRule()] = $oRule;
+		// TODO check that this allows repeated rules
+		$this->aRules[] = $oRule;
 	}
 	
 	/**

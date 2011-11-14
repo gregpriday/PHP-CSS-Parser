@@ -90,9 +90,24 @@ class CSSColor extends CSSFunction {
 }
 
 class CSSOriginFunction extends CSSValueList {
-	private $sName;
-	public function __construct($sName, $aArguments) {
-		$this->sName = $sName;
+	private $function;
+	
+	private $output = null;
+	
+	/**
+	 * The result of executing the function
+	 */
+	private $result;
+	
+	/**
+	 * @var bool JavaScript mode.
+	 */
+	private $jsmode;
+	
+	private $exitString = true;
+	
+	public function __construct($function, $aArguments) {
+		$this->function = $function;
 		parent::__construct($aArguments);
 	}
 	
@@ -100,7 +115,15 @@ class CSSOriginFunction extends CSSValueList {
 	 * Executes an origin function
 	 */
 	public function execute($executor) {
+		if(!method_exists($executor, $this->function))
+			throw new Exception('Invalid executor function. Could not find '.(is_string($executor) ? $executor : get_class($executor)).'::'.$this->sName);
 		
+		$args = array();
+		foreach($this->aComponents as $component){
+			$args[] = (string) $component;
+		}
+		
+		$this->output = call_user_func_array(array($executor, $this->function), $args);
 	}
 
 	public function getName() {
@@ -114,10 +137,34 @@ class CSSOriginFunction extends CSSValueList {
 	public function getArguments() {
 		return $this->aComponents;
 	}
+	
+	/**
+	 * Makes the function not exit from a string when we're creating the javascript code.
+	 */
+	public function noExitString(){
+		$this->exitString = false;
+	}
+	
+	/**
+	 * @param bool $mode If set to true, __toString() will return Javascript code.
+	 */
+	public function setJSMode($jsmode = true){
+		$this->jsmode = $jsmode;
+		foreach($this->aComponents as $c){
+			if($c instanceof CSSOriginFunction) $c->noExitString();
+		}
+	}
 
 	public function __toString() {
-		$aArguments = parent::__toString();
-		return "{$this->sName}({$aArguments})";
+		if($this->jsmode){
+			$aArguments = parent::__toString();
+			$return = '';
+			if($this->exitString) $return .= '" + ';
+			$return .= "e['{$this->function}']({$aArguments})";
+			if($this->exitString)  $return .= ' + "';
+			return $return;
+		}
+		else return (string) $this->output;
 	}
 }
 

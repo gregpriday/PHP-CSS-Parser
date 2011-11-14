@@ -112,20 +112,33 @@ class CSSURL extends CSSPrimitiveValue {
  * An Origin framework style variable.
  */
 class CSSOriginVariable extends CSSPrimitiveValue {
-	private $v;
+	/**
+	 * @var The value
+	 */
+	private $variable;
 	
 	/**
 	 * @var string The proccessed variable
 	 */
-	private $pr;
+	private $processed = null;
 	
 	public function __construct($v){
-		$this->v = $v;
-		$this->p = null;
+		$this->variable = $v;
 	}
 	
-	public function getVar(){
-		return $this->v;
+	/**
+	 * Get the current value.
+	 */
+	public function getValue(){
+		if(empty($this->processed)) return $this->processed;
+		else return $this->variable;
+	}
+	
+	/**
+	 * Get the name of the variable
+	 */
+	public function getVariable(){
+		return $this->variable;
 	}
 	
 	/**
@@ -133,11 +146,24 @@ class CSSOriginVariable extends CSSPrimitiveValue {
 	 *
 	 * @para array $values The values
 	 */
-	public function process($values){
-		
+	public function substitute($values){
+		list($v, $m) = explode('->', $this->variable);
+		if(empty($m)) $this->processed = $values[$v];
+		else $this->processed = $values[$v][$m];
+	}
+	
+	/**
+	 * @param bool $mode If set to true, __toString() will return Javascript code.
+	 */
+	public function setJSMode($jsmode = true){
+		$this->jsmode = $jsmode;
 	}
 	
 	public function __toString() {
-		return $this->p;
+		if($this->jsmode) {
+			list($v, $m) = explode('->', $this->variable);
+			return "v['{$v}']['$m']";
+		}
+		else return (string) $this->processed;
 	}
 }

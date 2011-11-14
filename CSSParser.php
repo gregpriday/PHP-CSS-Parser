@@ -98,6 +98,9 @@ class CSSParser {
 		}
 	}
 	
+	/**
+	 * This has been modified to allow for Origin functions as identifiers
+	 */
 	private function parseIdentifier($bAllowFunctions = true) {
 		$sResult = $this->parseCharacter(true);
 		if($sResult === null) {
@@ -228,6 +231,17 @@ class CSSParser {
 	}
 	
 	private function parseRule() {
+		// A rule can also be an origin function
+		if($this->comes('@')){
+			$this->consume('@');
+			$fName = $this->parseIdentifier(false);
+			$this->consume('(');
+			$result = new CSSOriginFunction($fName, $this->parseValue(array('=', ',')));
+			$this->consume(')');
+			if($this->comes(';')) $this->consume(';');
+			return $result;
+		}
+		
 		$oRule = new CSSRule($this->parseIdentifier());
 		$this->consumeWhiteSpace();
 		$this->consume(':');
