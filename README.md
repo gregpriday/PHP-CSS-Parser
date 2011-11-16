@@ -15,6 +15,14 @@ Added an Origin Function type, based on a standard CSS function. It's prefixed b
 
 Variables entered into CSS. Prefixed with $
 
+### TODO
+
+Add conditional blocks of the form
+
+@conditional @compare($section->var, '::none', '!=') {
+	#selector { ... }
+}
+
 ## Usage
 
 ### Installation
