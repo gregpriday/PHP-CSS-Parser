@@ -262,6 +262,10 @@ class Origin {
 		wp_enqueue_script('origin.admin', ORIGIN_BASE_URL.'/js/origin.js', array('jquery'));
 		wp_enqueue_style('origin.admin', ORIGIN_BASE_URL.'/css/admin.css');
 		
+		// Chosen
+		wp_enqueue_script('jquery.chosen', ORIGIN_BASE_URL.'/externals/chosen/chosen.jquery.js', array('jquery'));
+		wp_enqueue_style('jquery.chosen', ORIGIN_BASE_URL.'/externals/chosen/chosen.css');
+		
 		// Everything that we need for the dynamic previews
 		wp_enqueue_script('origin.preview', ORIGIN_BASE_URL.'/js/preview/preview.js', array('jquery'));
 		wp_enqueue_script('origin.color', ORIGIN_BASE_URL.'/js/preview/color.js', array('jquery'));
@@ -326,7 +330,7 @@ class Origin {
 	 */
 	function action_admin_bar_menu(){
 		if (!is_super_admin() || !is_admin_bar_showing() || is_admin()) return;
-	
+		
 		$href= add_query_arg('page', 'origin', admin_url('/themes.php'));
 		
 		if(!is_admin() && !is_404()){
@@ -388,10 +392,11 @@ class Origin {
 		
 		$raw_response = wp_remote_post($this->_config->endpoint.'/'.$this->theme_name.'/', $send_for_check);
 		
-		if (!is_wp_error($raw_response) && ($raw_response['response']['code'] == 200))
+		if (!is_wp_error($raw_response) && ($raw_response['response']['code'] == 200)){
 			$response = unserialize($raw_response['body']);
+			$checked_data->response[$this->theme_name] = $response;
+		}
 		
-		$checked_data->response[$this->theme_name] = $response;
 		return $checked_data;
 	}
 	

@@ -74,13 +74,17 @@ class Origin_Image {
 	
 	/**
 	 * Get the URL of an attachment preset
+	 *
+	 * @param string $preset The preset name.
+	 * @param int $attachment_id The attachment ID.
+	 * @param string $filename The filename. Can be anything. For SEO purposes.
 	 */
-	function get_preset_url($name, $id, $filename){
+	function get_preset_url($preset, $attachment_id, $filename = 'image.jpg'){
 		global $wp_rewrite;
 		
 		if ($wp_rewrite->using_permalinks()){
 			// Return a pretty version
-			return site_url().'/oim/'.urlencode($name).'/'.intval($id).'/'.$filename.'/';
+			return site_url().'/oim/'.urlencode($preset).'/'.intval($attachment_id).'/'.$filename.'/';
 		}
 		else{
 			// TODO Return an ugly version
@@ -161,7 +165,7 @@ class Origin_Image {
 		
 		$tosign = array(
 			$post->ID,
-			$preset['name']
+			$preset
 		);
 		$file = Origin::single()->cache->get_file('images', $tosign,'jpg');
 		

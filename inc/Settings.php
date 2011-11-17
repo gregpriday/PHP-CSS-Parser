@@ -145,6 +145,7 @@ class Origin_Settings {
 	 * Load default values for any empty values
 	 */
 	function load_defaults(){
+		if(empty($this->_settings)) return;
 		foreach($this->_settings as $section_id => $section){
 			foreach($section['settings'] as $field_id => $field){
 				if(empty($this->_values[$section_id][$field_id]) && isset($field['default']))

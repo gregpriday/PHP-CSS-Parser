@@ -144,6 +144,9 @@ class Origin_Grid {
 			$tosign[$gi] = array(
 				'id' => $grid_container->getAttribute('id'),
 				'class' => $grid_container->getAttribute('class'),
+				'data-responsive' => $grid_container->getAttribute('data-responsive'),
+				'data-margin' => $grid_container->getAttribute('data-margin'),
+				'data-cell-margin' => $grid_container->getAttribute('data-cell-margin'),
 				'cells' => array()
 			);
 			foreach($grid_container->attributes as $attribute){
@@ -157,7 +160,8 @@ class Origin_Grid {
 				
 				$tosign[$gi]['cells'][$ci] = array(
 					'id' => $cell->getAttribute('id'),
-					'class' => $cell->getAttribute('class')
+					'class' => $cell->getAttribute('class'),
+					'data-weight' => $cell->getAttribute('data-weight'),
 				);
 				foreach($cell->attributes as $attribute){
 					if(substr($attribute->name,0,5) == 'data-'){

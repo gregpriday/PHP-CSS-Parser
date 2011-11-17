@@ -30,9 +30,7 @@ class Origin_Type_Pattern extends Origin_Type_Select{
 	 * Enqueue any JS and CSS that we require
 	 */
 	static function enqueue(){
-		wp_enqueue_script('jquery.chosen', ORIGIN_BASE_URL.'/externals/chosen/chosen.jquery.js', array('jquery'));
-		wp_enqueue_style('jquery.chosen', ORIGIN_BASE_URL.'/externals/chosen/chosen.css');
-		wp_enqueue_script('origin.pattern.color', ORIGIN_BASE_URL.'/js/types/pattern.js', array('jquery'));
+		wp_enqueue_script('origin.pattern', ORIGIN_BASE_URL.'/js/types/pattern.js', array('jquery'));
 	}
 	
 	function render_form(){
