@@ -49,6 +49,7 @@ class Origin_CSS_Executor{
 	////////////////////////////////////////////////////////////////////////////
 	
 	public static function css_texture($name, $level){
+		if($name == '::none' || $level == 0) return 'none';
 		return 'url('.get_template_directory_uri().'/images/textures/levels/'.$name.'_l'.$level.'.png)';
 	}
 	

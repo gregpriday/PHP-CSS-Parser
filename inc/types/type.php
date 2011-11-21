@@ -59,7 +59,7 @@ abstract class Origin_Type{
 	}
 	
 	function value(){
-		return isset($this->value) ? $this->value : $this->settings['default'];
+		return isset($this->value) ? $this->value : @$this->settings['default'];
 	}
 	
 	function set_value($value){

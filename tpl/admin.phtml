@@ -106,7 +106,7 @@
 						<legend class="screen-reader-text"><span><?php print $field['#label'] ?></span></legend>
 						
 						<?php $obj->render_form(); ?>
-						<?php if($field['description']) : ?><p class="description"><?php print $field['description'] ?></p><?php endif; ?>
+						<?php if(!empty($field['description'])) : ?><p class="description"><?php print $field['description'] ?></p><?php endif; ?>
 					</fieldset>
 					</td>
 					</tr>

@@ -185,13 +185,17 @@ class Origin {
 		$selectors = $this->css->get_setting_selectors();
 		$css_js_function = $this->css->get_js_function();
 		
-		$updated = ($_POST['action'] == 'save');
+		$updated = (@$_POST['action'] == 'save');
 		
 		// Get the current filters
 		$user = wp_get_current_user();
-		$user_filters = get_user_meta($user->ID, 'origin_filters', true);
-		if($user_filters['theme'] != $this->theme_name) unset($user_filters);
-		if(empty($user_filters)) $user_filters = array('section' => null, 'tag' => null, 'selector' => null);
+		$user_filters = get_user_meta($user->ID, 'origin_filters', false);
+		
+		if(empty($user_filters) || @$user_filters['theme'] != $this->theme_name){
+			$user_filters['section'] = null;
+			$user_filters['tag'] = null;
+			$user_filters['selector'] = null;
+		}
 		
 		// Start URL is the page we'll start the preview from
 		if(!empty($_GET['ref'])) $start_url = $_GET['ref'];
@@ -224,6 +228,10 @@ class Origin {
 	function get_storage_url($sub = ''){
 		$upload_dir = wp_upload_dir();
 		return $upload_dir['baseurl'].'/origin'.(!empty($sub) ? '/'.$sub : '');
+	}
+	
+	public function get_config(){
+		return $this->_config;
 	}
 	
 	////////////////////////////////////////////////////////////////////////////
@@ -335,7 +343,7 @@ class Origin {
 		
 		if(!is_admin() && !is_404()){
 			$href = add_query_arg(array(
-				'ref' => 'http://'.$_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"]
+				'ref' => urlencode('http://'.$_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"])
 			), $href);
 		}
 		
@@ -344,22 +352,13 @@ class Origin {
 		
 		list($v) = explode('-', $wp_version, 2);
 		
-		if(version_compare($v, '3.3', '>=')){
-			// WP >= 3.3 uses a different admin bar structure
-			$wp_admin_bar->add_menu(array(
-				'parent' => 'site-name',
-				'title' => 'Design',
-				'href' => $href,
-			));
-		}
-		else{
-			// Older menu bar has an appearance tab
-			$wp_admin_bar->add_menu(array(
-				'parent' => 'appearance',
-				'title' => 'Design',
-				'href' => $href,
-			));
-		}
+		$wp_admin_bar->add_menu(array(
+			// Parent is dependent on WordPress version
+			'parent' => version_compare($v, '3.3', '>=') ? 'site-name' : 'appearance',
+			'title' => 'Design',
+			'id' => 'origin-design',
+			'href' => $href
+		));
 		
 		return $wp_admin_bar;
 	}

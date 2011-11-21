@@ -26,7 +26,7 @@ class Origin_CSS {
 	/**
 	 * Parse a CSS file
 	 */
-	function parse(){
+	function parse($file = null){
 		if(!empty($this->css_doc)) return $this->css_doc;
 		if(!class_exists('CSSParser')) require(dirname(__FILE__).'/../externals/css-parser/CSSParser.php');
 		

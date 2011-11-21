@@ -49,6 +49,7 @@ var originExecutor = {
 	////////////////////////////////////////////////////////////////////////////
 	
 	css_texture : function(name, level) {
+		if(name == '::none' || level == 0) return 'none';
 		return 'url('+originSettings.templateUrl+'/images/textures/levels/'+name+'_l'+level+'.png)';
 	},
 	

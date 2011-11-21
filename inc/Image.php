@@ -87,7 +87,13 @@ class Origin_Image {
 			return site_url().'/oim/'.urlencode($preset).'/'.intval($attachment_id).'/'.$filename.'/';
 		}
 		else{
-			// TODO Return an ugly version
+			// Return an ugly version
+			return add_query_arg(array(
+				'om' => 'im_preset',
+				'resize_preset' => $preset,
+				'attachment_id' => intval($attachment_id),
+				'filename' => $filename
+			), site_url());
 		}
 	}
 	
@@ -97,7 +103,7 @@ class Origin_Image {
 	function flush_rewrite_rules(){
 		$rules = get_option( 'rewrite_rules' );
 		// Flush the rules
-		if(count(array_intersect(array_keys(self::$_url_rules) , array_keys($rules))) != count(self::$_url_rules)){
+		if(!empty($rules) && count(array_intersect(array_keys(self::$_url_rules) , array_keys($rules))) != count(self::$_url_rules)){
 			// Flush the rules
 			global $wp_rewrite;
 			$wp_rewrite->flush_rules();
@@ -149,14 +155,19 @@ class Origin_Image {
 			
 			// Test if the location is valid
 			exec("$convert -version", $output);
-			preg_match('/'.preg_quote('Version: ImageMagick ').'([0-9.-]+)/', $output[0], $matches);
 			
-			// We need at least image magick 6.5
-			if(isset($matches[1]) && version_compare($matches[1], '6', '>='))
-				set_site_transient('imagemagick_location', $convert, 86400);
+			if(!empty($output)){
+				preg_match('/'.preg_quote('Version: ImageMagick ').'([0-9.-]+)/', $output[0], $matches);
+				
+				// We need at least image magick 6.5
+				if(isset($matches[1]) && version_compare($matches[1], '6', '>=')){
+					$convert = trim($convert);
+					set_site_transient('imagemagick_location', $convert, 86400);
+				}
+				else $convert = null;
+			}
 			else $convert = null;
 		}
-		$convert = trim($convert);
 		
 		// Get the base folder of the file
 		$attachment = wp_get_attachment_metadata($post->ID);
@@ -197,8 +208,8 @@ class Origin_Image {
 		header('Pragma: no-cache');
 		
 		// Ensure there's nothing waiting in the buffer
-		ob_clean();
-		flush();
+		@ob_clean();
+		@flush();
 		
 		// Display the image
 		readfile($file);

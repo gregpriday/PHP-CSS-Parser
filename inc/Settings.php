@@ -84,7 +84,7 @@ class Origin_Settings {
 	 * @return Origin_Type The class setting.
 	 */
 	function get_object($section, $setting){
-		if(empty($this->_objects[$section][$settings])){
+		if(empty($this->_objects[$section][$setting])){
 			// Instantiate the settings class
 			$type = $this->_settings[$section]['settings'][$setting]['type'];
 			$class = 'Origin_Type_'.ucfirst(strtolower($type));
@@ -112,7 +112,7 @@ class Origin_Settings {
 	}
 	
 	/**
-	 * Saves Origin's state based on the POST variables.
+	 * Saves Origin's state based on the POST variables. Also creates the CSS file.
 	 */
 	function save($input = null){
 		if($input == null) $input = $_POST;
@@ -129,8 +129,7 @@ class Origin_Settings {
 		}
 		
 		// Create the folder if it doesn't already exist
-		if(!is_dir(WP_CONTENT_DIR.'/origin')) mkdir(WP_CONTENT_DIR.'/origin', 0777, true);
-		$filename = WP_CONTENT_DIR.'/origin/'.Origin::single()->theme_name.'.css';
+		$filename = Origin::single()->css->get_css_path();;
 		
 		// Save the CSS
 		file_put_contents($filename, Origin::single()->css->get_css($this->_values));
@@ -201,6 +200,8 @@ class Origin_Settings {
 		$design = $this->get_sense_values();
 		$user = wp_get_current_user();
 		
+		$wp_version = get_bloginfo('version');
+		
 		$args = array(
 			'method' => 'POST',
 			'timeout' => 45,
@@ -221,7 +222,7 @@ class Origin_Settings {
 			'user-agent' => 'WordPress/' . $wp_version . '; ' . get_site_url()
 		);
 		
-		$raw_response = wp_remote_post($this->_config->endpoint.'/'.Origin::single()->theme_name, $args);
+		$raw_response = wp_remote_post(Origin::single()->get_config()->endpoint.'/'.Origin::single()->theme_name, $args);
 		
 		if (!is_wp_error($raw_response) && ($raw_response['response']['code'] == 200))
 			$response = unserialize($raw_response['body']);

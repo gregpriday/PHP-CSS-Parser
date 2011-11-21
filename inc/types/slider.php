@@ -51,7 +51,7 @@ class Origin_Type_Slider extends Origin_Type{
 	
 	function process_input($input){
 		// WordPress doesn't seem to like storing booleans, so we use strings.
-		if($this->settings['is_int']) $this->value = intval($input[$this->form_name]);
+		if(!empty($this->settings['is_int'])) $this->value = intval($input[$this->form_name]);
 		else $this->value = floatval($_POST[$this->form_name]);
 		
 	}
