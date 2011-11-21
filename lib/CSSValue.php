@@ -117,6 +117,8 @@ class CSSOriginVariable extends CSSPrimitiveValue {
 	 */
 	private $variable;
 	
+	private $jsmode = false;
+	
 	/**
 	 * @var string The proccessed variable
 	 */
