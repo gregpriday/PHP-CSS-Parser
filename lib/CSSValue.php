@@ -117,8 +117,6 @@ class CSSOriginVariable extends CSSPrimitiveValue {
 	 */
 	private $variable;
 	
-	private $jsmode;
-	
 	/**
 	 * @var string The proccessed variable
 	 */
@@ -126,7 +124,6 @@ class CSSOriginVariable extends CSSPrimitiveValue {
 	
 	public function __construct($v){
 		$this->variable = $v;
-		$this->jsmode = false;
 	}
 	
 	/**
